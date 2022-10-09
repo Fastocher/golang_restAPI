@@ -1,8 +1,12 @@
 package service
 
-import "github.com/Fastocher/restapp/pkg/repository"
+import (
+	"github.com/Fastocher/restapp"
+	"github.com/Fastocher/restapp/pkg/repository"
+)
 
 type Authorization interface {
+	CreateUser(user restapp.User) (int, error)
 }
 
 type Users interface {
@@ -14,5 +18,7 @@ type Service struct {
 }
 
 func NewService(repos *repository.Repository) *Service {
-	return &Service{}
+	return &Service{
+		Authorization: NewAuthService(repos.Authorization),
+	}
 }

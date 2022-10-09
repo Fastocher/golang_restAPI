@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"github.com/Fastocher/restapp"
@@ -10,16 +9,20 @@ import (
 	"github.com/Fastocher/restapp/pkg/service"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 func main() {
+
+	logrus.SetFormatter(new(logrus.JSONFormatter))
+
 	if err := initConfig(); err != nil {
-		log.Fatalf("Initialization falied : %s", err.Error())
+		logrus.Fatalf("Initialization falied : %s", err.Error())
 	}
 
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("env load error %s", err.Error())
+		logrus.Fatalf("env load error %s", err.Error())
 	}
 
 	db, err := repository.NewPostgresDB(repository.Config{
@@ -32,7 +35,7 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatalf("Initialization DB falied : %s", err.Error())
+		logrus.Fatalf("Initialization DB falied : %s", err.Error())
 	}
 
 	repos := repository.NewRepository(db)
@@ -41,7 +44,7 @@ func main() {
 
 	srv := new(restapp.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
-		log.Fatalf("Error on start server: %s", err.Error())
+		logrus.Fatalf("Error on start server: %s", err.Error())
 	}
 }
 
