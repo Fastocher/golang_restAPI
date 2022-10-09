@@ -7,6 +7,7 @@ import (
 	"github.com/Fastocher/restapp/pkg/handler"
 	"github.com/Fastocher/restapp/pkg/repository"
 	"github.com/Fastocher/restapp/pkg/service"
+	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 )
 
@@ -15,7 +16,20 @@ func main() {
 		log.Fatalf("Initialization falied : %s", err.Error())
 	}
 
-	repos := repository.NewRepository()
+	db, err := repository.NewPostgresDB(repository.Config{
+		Host:     "localhost",
+		Port:     "5434",
+		Username: "postgres",
+		Password: "1234",
+		DBName:   "postgres",
+		SSLMode:  "disable",
+	})
+
+	if err != nil {
+		log.Fatalf("Initialization DB falied : %s", err.Error())
+	}
+
+	repos := repository.NewRepository(db)
 	service := service.NewService(repos)
 	handlers := handler.NewHandler(service)
 
