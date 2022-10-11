@@ -7,6 +7,7 @@ import (
 
 type Authorization interface {
 	CreateUser(user restapp.User) (int, error)
+	GetUser(username, password string) (restapp.User, error)
 }
 
 type Users interface {

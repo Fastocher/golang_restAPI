@@ -24,3 +24,13 @@ func (r *AuthPostgres) CreateUser(user restapp.User) (int, error) {
 	}
 	return id, nil
 }
+
+// метод репозитория для получения пользотеля по логину и паролю
+func (r *AuthPostgres) GetUser(username, password string) (restapp.User, error) {
+	var user restapp.User
+	query := fmt.Sprintf("SELECT id FROM %s WHERE username=$1 AND password_hash=$2", usersTable)
+	//метод базы данных GET и передаём указатель на структуру &user
+	err := r.db.Get(&user, query, username, password)
+
+	return user, err
+}
