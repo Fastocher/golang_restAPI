@@ -13,13 +13,19 @@ type Authorization interface {
 type Users interface {
 }
 
+type Message interface {
+	CreateMessage(userId int, message restapp.Message) (int, error)
+}
+
 type Repository struct {
 	Authorization
 	Users
+	Message
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
+		Message:       NewMessagesPostgres(db),
 	}
 }

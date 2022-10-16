@@ -2,6 +2,7 @@ package service
 
 import (
 	"crypto/sha1"
+	"errors"
 	"fmt"
 	"time"
 
@@ -50,6 +51,29 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 		user.Id,
 	})
 	return token.SignedString([]byte(signinKey))
+}
+
+// Имплементирую логику описанную в сервисе
+func (s *AuthService) ParseToken(accessToken string) (int, error) {
+	//Функция ParseWithClaims возвращает объект токена, в котором есть поле Claims типа interface
+	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(t *jwt.Token) (interface{}, error) {
+		//промеряем метод подписи токена на HMAC
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing method")
+		}
+		return []byte(signinKey), nil
+	})
+
+	if err != nil {
+		return 0, err
+	}
+	// приведение Claims к структуре tokenClaims с проверкой
+	claims, ok := token.Claims.(*tokenClaims)
+	if !ok {
+		return 0, errors.New("token claims are not of type tokenClaims")
+	}
+	// при успешном парсинге возвращаем id пользователя
+	return claims.UserId, nil
 }
 
 func generatePasswordHash(password string) string {

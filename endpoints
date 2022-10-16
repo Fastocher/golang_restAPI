@@ -1,0 +1,18 @@
+POST /auth/sign-up
+POST /auth/sign-in
+
+
+# получение всех сообщений пользователя
+GET /MESSAGES
+
+# получение сообщения по id 
+GET /MESSAGES/{ID}
+
+# запись сообщения
+POST /MESSAGES
+
+# изменение сообщения по Id
+PUT /MESSAGES/{ID}
+
+#удаление сообщения по id 
+DELETE /MESSAGES/{ID}
