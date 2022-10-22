@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Fastocher/restapp"
 	"github.com/gin-gonic/gin"
@@ -33,12 +34,43 @@ func (h *Handler) CreateMessage(c *gin.Context) {
 	})
 }
 
-func (h *Handler) getAllMessages(c *gin.Context) {
+type getAllMessagesResponse struct {
+	Data []restapp.Message `json: "data"`
+}
 
+func (h *Handler) getAllMessages(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		return
+	}
+
+	messages, err := h.services.Message.GetAll(userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	c.JSON(http.StatusOK, getAllMessagesResponse{
+		Data: messages,
+	})
 }
 
 func (h *Handler) getMessageById(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		return
+	}
 
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id")
+	}
+
+	message, err := h.services.Message.GetById(userId, id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	c.JSON(http.StatusOK, message)
 }
 
 func (h *Handler) updateMessage(c *gin.Context) {

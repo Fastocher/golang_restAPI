@@ -6,7 +6,8 @@ type UsersMessages struct {
 	MessageId int
 }
 
+// теги db для возможности выборки из базы
 type Message struct {
-	Id      int    `json:" id"`
-	Message string `json: "message" binding:"required"`
+	Id      int    `json:"id" db:"id"`
+	Message string `json:"message" db:"message" binding:"required"`
 }

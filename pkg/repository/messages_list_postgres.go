@@ -38,6 +38,31 @@ func (r *MessagesPostgres) CreateMessage(userId int, message restapp.Message) (i
 		tx.Rollback()
 		return 0, err
 	}
-	// ззавершение транзакции. Коммит.
+	// завершение транзакции. Коммит.
 	return id, tx.Commit()
+}
+
+// имплементация метода описанного в интерфейсе репозитория
+func (r *MessagesPostgres) GetAll(userId int) ([]restapp.Message, error) {
+	var messages []restapp.Message
+	// выбираю значения по inner join, тоесть те значения которые имеют
+	// одинаковые значения в обоих таблицах
+	// все записи из таблицы message которые есть в табилце users messages
+	// и при этом связаны с id пользователя
+	query := fmt.Sprintf("SELECT m.id,m.message FROM %s m INNER JOIN %s ul on m.id = ul.message_id WHERE ul.user_id = $1",
+		messagesTable, usersMessagestable)
+	err := r.db.Select(&messages, query, userId)
+
+	return messages, err
+
+}
+
+func (r *MessagesPostgres) GetById(userId, messageId int) (restapp.Message, error) {
+	var message restapp.Message
+
+	query := fmt.Sprintf(`SELECT m.id,m.message FROM %s m INNER JOIN %s um 
+	on m.id = um.message_id WHERE um.user_id = $1 AND um.message_id = $2`, messagesTable, usersMessagestable)
+	err := r.db.Get(&message, query, userId, messageId)
+
+	return message, err
 }

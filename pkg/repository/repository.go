@@ -15,6 +15,8 @@ type Users interface {
 
 type Message interface {
 	CreateMessage(userId int, message restapp.Message) (int, error)
+	GetAll(userId int) ([]restapp.Message, error)
+	GetById(userId, messageId int) (restapp.Message, error)
 }
 
 type Repository struct {

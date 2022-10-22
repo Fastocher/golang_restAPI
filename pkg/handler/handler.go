@@ -25,8 +25,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		messages := api.Group("/messages")
 		{
-			messages.GET("/")
-			messages.GET("/:id")
+			messages.GET("/", h.getAllMessages)
+			messages.GET("/:id", h.getMessageById)
 			messages.POST("/", h.CreateMessage)
 			messages.PUT("/:id")
 			messages.DELETE("/:id")
