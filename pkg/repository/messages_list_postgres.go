@@ -2,9 +2,11 @@ package repository
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Fastocher/restapp"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 )
 
 type MessagesPostgres struct {
@@ -65,4 +67,40 @@ func (r *MessagesPostgres) GetById(userId, messageId int) (restapp.Message, erro
 	err := r.db.Get(&message, query, userId, messageId)
 
 	return message, err
+}
+
+func (r *MessagesPostgres) Delete(userId, messageId int) error {
+	query := fmt.Sprintf("DELETE FROM %s m USING %s um WHERE m.id = um.message_id AND um.user_id=$1 AND um.message_id=$2",
+		messagesTable, usersMessagestable)
+
+	_, err := r.db.Exec(query, userId, messageId)
+
+	return err
+}
+
+func (r *MessagesPostgres) Update(userId, messageId int, input restapp.UpdateMessageInput) error {
+	setValues := make([]string, 0)
+	args := make([]interface{}, 0)
+	argId := 1
+
+	if input.Message != nil {
+		setValues = append(setValues, fmt.Sprintf("message=$%d", argId))
+		args = append(args, *input.Message)
+		argId++
+	}
+
+	setQuery := strings.Join(setValues, ", ")
+
+	query := fmt.Sprintf("UPDATE %s m SET %s FROM %s um WHERE m.id = um.message_id AND um.message_id=$%d AND um.user_id=$%d",
+		messagesTable, setQuery, usersMessagestable, argId, argId+1)
+
+	args = append(args, messageId, userId)
+
+	logrus.Debugf("update query: %s", query)
+	logrus.Debugf("args: %s", args)
+
+	_, err := r.db.Exec(query, args...)
+
+	return err
+
 }

@@ -28,8 +28,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			messages.GET("/", h.getAllMessages)
 			messages.GET("/:id", h.getMessageById)
 			messages.POST("/", h.CreateMessage)
-			messages.PUT("/:id")
-			messages.DELETE("/:id")
+			messages.PUT("/:id", h.updateMessage)
+			messages.DELETE("/:id", h.deleteMessage)
 		}
 
 	}
