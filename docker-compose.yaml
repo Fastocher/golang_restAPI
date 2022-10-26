@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  db:
+    restart: always
+    image: postgres:latest
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_PASSWORD=1234
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - pgconf:/etc/postgresql
+      - pglog:/var/log/postgresql
+      - ./init.sql:/docker-entrypoint-initdb.d/10-init.sql
+
+  restapp:
+    build: ./
+    command: ./wait-for-postgres.sh db ./restapp
+    container_name: "restapp"
+    environment:
+      - DB_PASSWORD=1234
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
+  pgconf:
+  pglog: 
