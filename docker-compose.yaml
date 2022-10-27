@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     restart: always
-    image: postgres:latest
+    image: postgres:alpine
     ports:
       - "5434:5432"
     environment:
@@ -16,6 +16,7 @@ services:
 
   restapp:
     build: ./
+    image: restapp
     command: ./wait-for-postgres.sh db ./restapp
     container_name: "restapp"
     environment:
